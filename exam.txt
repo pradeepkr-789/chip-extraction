@@ -1,0 +1,141 @@
+cd C:\Users\AJITH\Desktop\ML PROJECTS\images
+
+import cv2
+import imutils
+
+img=cv2.imread("req_image.png")
+cv2.imshow("img",img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+import numpy as np
+import cv2 
+from matplotlib import pyplot as plt
+
+img = cv2.imread('req_image.png')
+img1 = img.copy()
+gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+ret, thresh = cv.threshold(gray,0,255,cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
+
+# noise removal
+kernel = np.ones((3,3),np.uint8)
+opening = cv.morphologyEx(thresh,cv.MORPH_OPEN,kernel, iterations = 2)
+# sure background area
+sure_bg = cv.dilate(opening,kernel,iterations=3)
+# Finding sure foreground area
+dist_transform = cv.distanceTransform(opening,cv.DIST_L2,5)
+ret, sure_fg = cv.threshold(dist_transform,0.7*dist_transform.max(),255,0)
+# Finding unknown region
+sure_fg = np.uint8(sure_fg)
+unknown = cv.subtract(sure_bg,sure_fg)
+color_img = cv2.bitwise_and(img1,img1,mask = unknown)
+
+cv2.imshow("img",color_img)
+cv2.imwrite("color_image.jpg",color_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#import cv2
+#background abstraction & contours:
+#img=cv2.imread("sample.jpg")
+
+color_img = cv2.resize(color_img, (720,720), interpolation = cv2.INTER_AREA)
+gray = cv2.cvtColor(color_img,cv2.COLOR_BGR2GRAY);
+color_img1=color_img.copy()
+_,thresh=cv2.threshold(gray,140,255,cv2.THRESH_BINARY)
+_,contours, _ = cv2.findContours(thresh,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+#contours = imutils.grab_contours(contours)
+#im2, contours, hierarchy = cv.findContours(fgmask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
+print(len(contours))
+n=0
+for c in range(len(contours)):
+   
+    if(cv.contourArea(contours[c]) >500):
+         print(cv.contourArea(contours[c]))
+       # cv2.drawContours(color_img1,[contours[c]],-1,(0,255,0),thickness=cv2.FILLED)
+         n=n+1
+        
+print(n)
+cv2.imshow("img1",color_img1)
+cv2.imshow("img",img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+265
+
+1985.0
+7713.0
+1352.0
+36656.0
+7482.0
+19888.0
+7274.0
+4144.0
+9253.5
+4088.5
+895.5
+1580.0
+6250.0
+4163.0
+4946.5
+1080.5
+688.0
+2758.5
+921.5
+1251.5
+
+20
+
+
+
+
+
+
+
+
+
+
+
+
+
+class color_identifier:
+    def __init__(self):
+        pass
+    def find_percentage(self,c):
+        number=0
+        total_number=0
+       
+        lower_h = np.array([240])
+        upper_h = np.array([250])
+        lower_s = np.array([131])
+        upper_s = np.array([65])
+        lower_v = np.array([66])
+        upper_v = np.array([83])
+        h = c[:,:,0]
+        s = c[:,:,1]
+        v = c[:,:,2]
+        for i in range(len(h)):
+            for j in range(len(s)):
+                for k in range(len(v)):
+                    total_number=toatal_number+1
+                    if((h[i]>=lower_h & h[i] <= upper_h)&(s[i] >=lower_s & s[i] <= upper_s)&(v[i] >= lower_v & v[i]<=lower_v)):
+                        number=number+1
+        
+        percentage=number/total_number
+        return percentage
+
+
+n=0
+ci=color_identifier()
+for c in range(len(contours)):
+    if(cv.contourArea(contours[c]) >500):
+       # cv2.drawContours(color_img1,[contours[c]],-1,(0,255,0),thickness=cv2.FILLED)
+        
+        percentage=ci.find_percentage(contours[c])
+        if(percentage>0.68):
+            n=n+1
+            print(c)
+            
+                       
+                    
